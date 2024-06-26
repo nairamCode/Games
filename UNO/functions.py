@@ -36,3 +36,14 @@ def deal_cards(player_list, deck):
             deck.remove(deck[random_card])
     # Return the player list (now everyone has cards) and the deck (which now has less cards)
     return player_list, deck
+
+def check_last_card(stapel):
+    if len(stapel) == 0:
+        return None
+    else:
+        last_card = stapel[-1]
+        x = last_card.split("_")
+        return x[-1]
+    
+def do_last_action(last_action):
+    pass
