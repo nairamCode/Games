@@ -1,23 +1,30 @@
 from functions import *
-'''# Input the amount of players participating
-player_count = int(input("Input player count: "))
 
 # Send the player count to the player setup function to create the player
-player_list = player_setup(player_count)
+player_list = game_setup.player_setup()
+player_list, deck, discard = game_setup.deal_cards(player_list)
 
-# Create a deck to deal cards from and to play with later
-deck = ["red_0", "yellow_0", "green_0", "blue_0", "red_1", "yellow_1", "green_1", "blue_1", "red_1", "yellow_1", "green_1", "blue_1", "red_2", "yellow_2", "green_2", "blue_2", "red_2", "yellow_2", "green_2", "blue_2", "red_3", "yellow_3", "green_3", "blue_3", "red_3", "yellow_3", "green_3", "blue_3", "red_4", "yellow_4", "green_4", "blue_4", "red_4", "yellow_4", "green_4", "blue_4", "red_5", "yellow_5", "green_5", "blue_5", "red_5", "yellow_5", "green_5", "blue_5", "red_6", "yellow_6", "green_6", "blue_6", "red_6", "yellow_6", "green_6", "blue_6", "red_7", "yellow_7", "green_7", "blue_7", "red_7", "yellow_7", "green_7", "blue_7", "red_8", "yellow_8", "green_8", "blue_8", "red_8", "yellow_8", "green_8", "blue_8", "red_9", "yellow_9", "green_9", "blue_9", "red_9", "yellow_9", "green_9", "blue_9", "red_stop", "yellow_stop", "green_stop", "blue_stop", "red_stop", "yellow_stop", "green_stop", "blue_stop", "red_switch", "yellow_switch", "green_switch", "blue_switch", "red_switch", "yellow_switch", "green_switch", "blue_switch", "red_draw2", "yellow_draw2", "green_draw2", "blue_draw2", "red_draw2", "yellow_draw2", "green_draw2", "blue_draw2", "black_color", "black_color", "black_color", "black_color", "black_draw4", "black_draw4", "black_draw4", "black_draw4"]
+for i in range(0,len(player_list)):
+    print(player_list[i])
 
-# Send th player list and deck to the deal_cards function which deals cards to the players
-player_list, deck = deal_cards(player_list, deck)'''
+while True:
+    last_color, last_action = check_last_card(discard)
+    # Check win condition
+    if check_for_win(player_list) == True:
+        break
+    # do last action
+    player_list, deck, last_color, last_action = do_last_action(player_list, deck, last_color, last_action)
+    # play
+    player = player_list[0]
+    player_name = player[0]
+    player_hand = player[1]
+    print(f"The next player is {player_name}.")
+    print(f"The last card was a {last_color} {last_action}.")
 
-stapel = []
+    player_choice = cc_valid_cards(player_list, deck, player_hand, last_color, last_action)
+    if player_choice == None:
+        continue
+    play_card(player_list, discard, player_choice)
+    next_turn(player_list)
 
-last_action = check_last_card(stapel)
-print(last_action)
-
-if last_action == None:
-    # Play any card
-    pass
-else:
-    do_last_action(last_action)
+    print("")
