@@ -38,8 +38,7 @@ class game_setup:
                 # Pick a random card from the deck
                 random_card = random.randint(0,len(deck)-1)
                 # Find the players hand
-                player = player_list[i]
-                player_hand = player[1]
+                player_hand = player_list[i][1]
                 # Add the random card to the players hand
                 player_hand.append(deck[random_card])
                 # Remove the card from the deck
@@ -50,24 +49,23 @@ class game_setup:
         discard = []
         discard.append(deck[random_card])
         deck.remove(deck[random_card])
+        last_color = None
+        last_color = check_last_card(discard, last_color)
         # Return the player list (now everyone has cards) and the deck (which now has less cards)
-        return player_list, deck, discard
+        return player_list, deck, discard, last_color
 
-def check_last_card(stapel):
-    if len(stapel) == 0:
-        return None, None
-    else:
-        last_card = stapel[-1]
-        x = last_card.split("_")
-        color = x[0]
-        action = x[1]
-        return color, action
+def check_last_card(stapel, last_color):
+    last_card = stapel[-1]
+    x = last_card.split("_")
+    color = x[0]
+    action = x[1]
+    if color == "black":
+        return last_color, action
+    return color, action
     
 def check_for_win(player_list):
     for i in range(0,len(player_list)):
-        player = player_list[i]
-        player_hand = player[1]
-        if len(player_hand) == 0:
+        if len(player_list[i][1]) == 0:
             return True
         else:
             return False
@@ -82,32 +80,23 @@ def do_last_action(player_list, deck, last_color, last_action):
         return player_list, deck, last_color, last_action
     elif last_action == "draw4":
         player_list, deck = draw_cards(deck, player_list, 4)
-        colors = ["red", "yellow", "green", "blue"]
-        last_color = input("Chose next color: ")
-        while last_color not in colors:
-            print("Your Options: red, yellow, green, blue")
-            last_color = input("Chose next color: ")
         player_list = next_turn(player_list)
         return player_list, deck, last_color, last_action
     elif last_action == "switch":
-        player_list = player_list[::-1]
-        player_list = next_turn(player_list)
+        player_list = next_turn(player_list[::-1])
         return player_list, deck, last_color, last_action
     elif last_action == "stop":
         player_list = next_turn(player_list)
-        player = player_list[-1]
-        print(f"The player {player[0]} was skipped.")
+        print(f"The player {player_list[-1][0]} was skipped.", end="\n\n")
     return player_list, deck, last_color, last_action
     
 def draw_cards(deck, player_list, amount):
     for i in range(0,amount):
             random_card = random.randint(0,len(deck)-1)
-            player = player_list[0]
-            player_hand = player[1]
+            player_hand = player_list[0][1]
             player_hand.append(deck[random_card])
             deck.remove(deck[random_card])
-    print(f"{player[0]} drawed {amount} card(s).")
-    print("")
+    print(f"{player_list[0][0]} drawed {amount} card(s).", end="\n\n")
     return player_list, deck
 
 def next_turn(player_list):
@@ -122,12 +111,15 @@ def cc_valid_cards(player_list, deck, player_hand, last_color, last_action):
         x = card.split("_")
         color = x[0]
         action = x[1]
-        if color == last_color or action == last_action:
+        if color == last_color or card == "black_color" or action == last_action:
             valid_cards.append(card)
     if len(valid_cards) == 0:
-        draw_cards(deck, player_list, 1)
-        next_turn(player_list)
-        return None
+        if "black_draw4" in player_hand:
+            valid_cards.append("black_draw4")
+        else:
+            draw_cards(deck, player_list, 1)
+            next_turn(player_list)
+            return None
     print("Here are all your valid cards: ")
     for i in range(0,len(valid_cards)):
         print(valid_cards[i])
@@ -136,8 +128,14 @@ def cc_valid_cards(player_list, deck, player_hand, last_color, last_action):
         player_choice = int(input("Which one do you wanna play?: "))
     return valid_cards[player_choice-1]
 
-def play_card(player_list, discard, player_choice):
-    player = player_list[0]
-    player_hand = player[1]
+def play_card(player_list, discard, player_choice, last_color):
+    player_hand = player_list[0][1]
+    if player_choice == "black_draw4" or player_choice == "black_color":
+        colors = ["red", "yellow", "green", "blue"]
+        last_color = input("Chose next color: ")
+        while last_color not in colors:
+            print("Your Options: red, yellow, green, blue")
+            last_color = input("Chose next color: ")
     discard.append(player_choice)
     player_hand.remove(player_choice)
+    return last_color
